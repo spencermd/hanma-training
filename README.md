@@ -4,6 +4,7 @@ A phone app for the 6-week Baki Hanma workout and diet plan. It works on Android
 
 - **Today:** the day's workout and meals. Check off exercises, log weights and reps, mark meals as eaten, log other food, and log your bodyweight.
 - **Plan:** all 42 days, week by week.
+- **Grocery:** a weekly shopping list in store units (pounds of raw meat, dozens of eggs, tubs, cans), grouped by aisle and scaled to your bodyweight and goal, with check-offs for the store. The Sunday morning reminder says to restock.
 - **Progress:** completion stats, streak, benchmark tests (weeks 0, 3 and 6) and a bodyweight chart.
 - **Settings:** start date, bodyweight and goal (meal portions rescale to fit), reminder times, and backup/restore.
 - **Reminders:** a morning push with the day's plan and an evening check-in on what's still unlogged.

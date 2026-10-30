@@ -25,7 +25,7 @@ const ui = { tab: 'today', day: null, open: {}, week: null, planOpen: null, shee
 function defaults() {
   return {
     settings: { startDate: P.nextMonday(today()), bodyweight: 180, goal: 'Lean Bulk', morningHour: 7, eveningHour: 20 },
-    logs: {}, bench: {}, weights: {}, push: null,
+    logs: {}, bench: {}, weights: {}, push: null, shop: { checked: {} },
   };
 }
 function load() {
@@ -191,6 +191,39 @@ function renderPlan() {
   return `<section class="hero"><div class="kicker">6-Week Program</div><h1>The Plan</h1>
     <div class="sub">${esc(P.PHASE[week])}: ${PHASE_NOTES[week]}</div></section>
     <div class="chips">${chips}</div>${days}`;
+}
+
+// ---------- Grocery ----------
+const roundAmt = (x) => (x >= 10 ? Math.round(x) : Math.round(x * 10) / 10);
+function buyLabel(i) {
+  if (i.pack === 'lb') return `~${(Math.ceil(i.amount * 4) / 4).toFixed(2).replace(/\.?0+$/, '')} lb`;
+  if (i.pack === 'each') return `${i.packs}`;
+  return `${i.packs} × ${i.pack}`;
+}
+function renderGrocery() {
+  const s = state.settings, groups = P.weeklyGroceries(s), checked = state.shop.checked;
+  const all = groups.flatMap((g) => g.items), got = all.filter((i) => checked[i.food]).length;
+  const sundays = [];
+  for (let n = 0; n < 6; n++) sundays.push(fmtDate(P.addDays(s.startDate, -1 + n * 7), { month: 'short', day: 'numeric' }));
+  return `<section class="hero"><div class="kicker">Weekly Shopping</div><h1>Grocery List</h1>
+    <div class="sub">One week of the meal plan, scaled to ${esc(s.bodyweight)} lb · ${esc(s.goal)}. Shop on your rest day: ${sundays.join(', ')}.</div></section>
+  <section class="card">
+    <div class="card-head"><h2>In the cart</h2><span class="count">${got}/${all.length}</span></div>
+    ${bar(got / all.length, got === all.length ? 'green' : '')}
+    <div class="btn-row"><button class="btn secondary small" data-action="shop-clear">Start a new week</button></div>
+  </section>
+  ${groups.map((g) => `<section class="card"><h3 class="aisle">${esc(g.aisle)}</h3><ul class="list">
+    ${g.items.map((i) => `<li class="row ${checked[i.food] ? 'done' : ''}">
+      <button class="check" data-action="shop-toggle" data-food="${esc(i.food)}" aria-label="Got ${esc(i.food)}"></button>
+      <div class="row-main">
+        <div class="row-title">${esc(i.food)}</div>
+        <div class="row-meta">Need ${roundAmt(i.amount)} ${esc(i.unit)} this week</div>
+        ${i.weeksCovered >= 2 ? `<div class="stock">One lasts ~${Math.floor(i.weeksCovered)} weeks. Skip it if you still have some.</div>` : ''}
+      </div>
+      <div class="buy">${esc(buyLabel(i))}</div>
+    </li>`).join('')}
+  </ul></section>`).join('')}
+  <p class="help">Meat amounts are raw weight (about 8 oz raw per 6 oz cooked serving). Off-plan foods you log aren't included. Prep tip: cook chicken, beef, rice and potatoes in bulk on Sunday and Wednesday.</p>`;
 }
 
 // ---------- Progress ----------
@@ -414,7 +447,7 @@ function toast(msg) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 3200);
 }
 function render() {
-  const views = { today: renderToday, plan: renderPlan, progress: renderProgress, settings: renderSettings };
+  const views = { today: renderToday, plan: renderPlan, grocery: renderGrocery, progress: renderProgress, settings: renderSettings };
   $('#view').innerHTML = views[ui.tab]();
   document.querySelectorAll('#tabs button').forEach((b) => b.classList.toggle('active', b.dataset.tab === ui.tab));
   renderSheet();
@@ -454,6 +487,12 @@ document.addEventListener('click', async (e) => {
     case 'del-food': logFor(n).foods.splice(i, 1); save(); return render();
     case 'week': ui.week = Number(b.dataset.w); ui.planOpen = null; return render();
     case 'plan-open': { const k = Number(b.dataset.n); ui.planOpen = ui.planOpen === k ? null : k; return render(); }
+    case 'shop-toggle': {
+      const c = state.shop.checked, f = b.dataset.food;
+      if (c[f]) delete c[f]; else c[f] = true;
+      save(); return render();
+    }
+    case 'shop-clear': state.shop.checked = {}; save(); return render();
     case 'enable-push': return enablePush();
     case 'test-push': return testPush();
     case 'copy-code': {

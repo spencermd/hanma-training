@@ -125,6 +125,41 @@
     'Olive Oil': ['1 tbsp', 120, 0, 0, 14],
   };
 
+  // How each food is bought: aisle, shopping unit, amount of that unit per serving,
+  // and the store pack (name, size in the same unit). Raw meat ≈ 8 oz per 6 oz cooked.
+  const AISLES = ['Meat & Fish', 'Dairy & Eggs', 'Produce', 'Grains & Bread', 'Pantry'];
+  const SHOP = {
+    'Whole Eggs': ['Dairy & Eggs', 'eggs', 1, 'dozen', 12],
+    'Egg Whites': ['Dairy & Eggs', 'cups', 1, '32 oz carton', 4],
+    'Chicken Breast': ['Meat & Fish', 'lb raw', 0.5, 'lb', 1],
+    'Lean Ground Beef 90/10': ['Meat & Fish', 'lb raw', 0.5, 'lb', 1],
+    'Sirloin Steak': ['Meat & Fish', 'lb raw', 0.5, 'lb', 1],
+    'Salmon': ['Meat & Fish', 'lb raw', 0.47, 'lb', 1],
+    'Tuna (canned in water)': ['Pantry', 'cans', 1, '5 oz can', 1],
+    'Greek Yogurt (nonfat)': ['Dairy & Eggs', 'cups', 1, '32 oz tub', 4],
+    'Cottage Cheese (2%)': ['Dairy & Eggs', 'cups', 1, '24 oz tub', 3],
+    'Whole Milk': ['Dairy & Eggs', 'cups', 1, 'half gallon', 8],
+    'Whey Protein': ['Pantry', 'scoops', 1, '2 lb tub (~30 scoops)', 30],
+    'Rolled Oats': ['Grains & Bread', 'cups dry', 0.5, '42 oz canister (~15 cups)', 15],
+    'White Rice': ['Grains & Bread', 'lb dry', 0.14, '2 lb bag', 2],
+    'Pasta': ['Grains & Bread', 'oz dry', 2, '16 oz box', 16],
+    'Sweet Potato': ['Produce', 'medium', 1, 'each', 1],
+    'White Potato': ['Produce', 'medium', 1, 'each', 1],
+    'Bagel (plain)': ['Grains & Bread', 'bagels', 1, '6-pack', 6],
+    'Whole-Wheat Bread': ['Grains & Bread', 'slices', 1, 'loaf (~20 slices)', 20],
+    'Black Beans': ['Pantry', 'cups', 1, '15 oz can (~1.5 cups)', 1.5],
+    'Banana': ['Produce', 'bananas', 1, 'each', 1],
+    'Blueberries': ['Produce', 'cups', 1, 'pint (~2 cups)', 2],
+    'Apple': ['Produce', 'apples', 1, 'each', 1],
+    'Honey': ['Pantry', 'tbsp', 1, '12 oz bottle (~17 tbsp)', 17],
+    'Broccoli': ['Produce', 'lb', 0.33, 'lb', 1],
+    'Spinach (raw)': ['Produce', 'oz', 2, '10 oz bag', 10],
+    'Almonds': ['Pantry', 'oz', 1, '16 oz bag', 16],
+    'Peanut Butter': ['Pantry', 'tbsp', 2, '16 oz jar (~28 tbsp)', 28],
+    'Avocado': ['Produce', 'avocados', 0.5, 'each', 1],
+    'Olive Oil': ['Pantry', 'tbsp', 1, '17 oz bottle (~34 tbsp)', 34],
+  };
+
   const meal = (name, time, items) => ({ name, time, items: items.map(([food, s]) => ({ food, base: s })) });
   const BED = meal('Before Bed', '21:30', [['Cottage Cheese (2%)', 1]]);
   const MENU_A = [
@@ -207,6 +242,25 @@
     };
   }
 
+  // One week of planned meals, totalled and converted to store units. Every program
+  // week eats the same menus, so this list only changes when bodyweight or goal does.
+  function weeklyGroceries(settings) {
+    const servings = {};
+    for (let n = 1; n <= 7; n++) {
+      for (const m of getDay(n, settings).meals) {
+        for (const it of m.items) servings[it.food] = (servings[it.food] || 0) + it.servings;
+      }
+    }
+    const items = Object.entries(servings).map(([food, s]) => {
+      const [aisle, unit, perServing, pack, packSize] = SHOP[food];
+      const amount = s * perServing;
+      const packs = Math.max(1, Math.ceil(amount / packSize - 1e-9));
+      return { food, aisle, unit, amount, pack, packs, weeksCovered: (packs * packSize) / amount };
+    });
+    return AISLES.map((aisle) => ({ aisle, items: items.filter((i) => i.aisle === aisle).sort((a, b) => a.food.localeCompare(b.food)) }))
+      .filter((g) => g.items.length);
+  }
+
   // Dates are handled as 'YYYY-MM-DD' strings in local time.
   const pad = (x) => String(x).padStart(2, '0');
   const isoDate = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -237,13 +291,14 @@
     const top = d.exercises.slice(0, 3).map((e) => `${e.name.replace(/\s*\(.*?\)/, '')} ${e.sets > 1 ? e.sets + '×' : ''}${e.reps}`).join(', ');
     const more = d.exercises.length > 3 ? ` +${d.exercises.length - 3} more` : '';
     const first = d.meals[0];
+    const restock = d.dayType === 'Rest' && n < TOTAL_DAYS ? ' Restock today: open the Grocery list.' : '';
     return {
       title: `Day ${n}/${TOTAL_DAYS} · ${d.focusShort}`,
-      body: `${top}${more}. Eat ${fmtNum(d.targets.kcal)} kcal, ${d.targets.protein} g protein. ${first.name}: ${first.items.map((i) => `${i.servings} ${i.food}`).join(', ')}.`,
+      body: `${top}${more}. Eat ${fmtNum(d.targets.kcal)} kcal, ${d.targets.protein} g protein. ${first.name}: ${first.items.map((i) => `${i.servings} ${i.food}`).join(', ')}.${restock}`,
     };
   }
 
-  const api = { TOTAL_DAYS, PHASE, GOALS, FOODS, getDay, targets, macrosFor, compose, isoDate, dayNumber, addDays, nextMonday, fmtNum };
+  const api = { TOTAL_DAYS, PHASE, GOALS, FOODS, getDay, targets, macrosFor, compose, weeklyGroceries, isoDate, dayNumber, addDays, nextMonday, fmtNum };
   root.BakiPlan = api;
   if (typeof module !== 'undefined') module.exports = api;
 })(typeof self !== 'undefined' ? self : globalThis);
