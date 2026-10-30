@@ -354,7 +354,7 @@
     };
   }
 
-  const api = { TOTAL_DAYS, PHASE, GOALS, FOODS, SUPP_DAYS, DEFAULT_SUPPLEMENTS, supplementsFor, getDay, targets, macrosFor, compose, weeklyGroceries, isoDate, dayNumber, addDays, nextMonday, fmtNum };
+  const api = { TOTAL_DAYS, PHASE, GOALS, FOODS, SHOP, STORES, WEEK_MENUS, SUPP_DAYS, DEFAULT_SUPPLEMENTS, supplementsFor, getDay, targets, macrosFor, compose, weeklyGroceries, isoDate, dayNumber, addDays, nextMonday, fmtNum };
   root.BakiPlan = api;
   if (typeof module !== 'undefined') module.exports = api;
 })(typeof self !== 'undefined' ? self : globalThis);
