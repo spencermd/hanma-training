@@ -18,78 +18,78 @@
   const sets = (base, w) => base + (w === 3 || w === 4 ? 1 : w === 5 ? 2 : w === 6 ? -1 : 0);
   const rpe = (w) => ({ 1: '7', 2: '7-8', 3: '8', 4: '8-9', 5: '9-10', 6: '6-7' })[w];
   const mins = (base, w) => `${pyRound(base * MULT[w])} min`;
-  // `where` = the best spot or equipment at Gainesville Health & Fitness (GHF Main / Tioga).
+  // `where` = the best spot or equipment at GHF Tioga (Gainesville Health & Fitness), the home gym.
   const ex = (name, sets, reps, rest, note, where = '') => ({ name, sets, reps: String(reps), rest, note, where });
 
   const WORKOUTS = [
     (w) => ['Upper Strength & Grip - "Demon Back"', [
       ex('Weighted Pull-Ups', sets(5, w), Math.max(3, 8 - Math.floor(w / 2)), '2-3 min', 'Add load weekly; full dead hang to chin over bar', 'Pull-up station + dip belt'),
       ex('Weighted Dips', sets(4, w), Math.max(5, 10 - Math.floor(w / 2)), '2 min', 'Chest-forward lean, deep stretch', 'Dip station + dip belt'),
-      ex('Pendlay Rows', sets(4, w), '8', '90 s', 'Explode off the floor every rep; bar resets dead each rep', 'Deadlift platform, bumper plates'),
-      ex('Archer Push-Ups', sets(3, w), `${r(8, w)}/side`, '60 s', 'Progressing toward one-arm push-ups', 'Turf'),
-      ex('Fingertip Push-Ups', sets(3, w), r(15, w), '60 s', 'Finger and hand strength', 'Turf'),
+      ex('Pendlay Rows', sets(4, w), '8', '90 s', 'Explode off the floor every rep; bar resets dead each rep', 'Deadlift platform or rack area, bumper plates'),
+      ex('Archer Push-Ups', sets(3, w), `${r(8, w)}/side`, '60 s', 'Progressing toward one-arm push-ups', 'CrossFit turf'),
+      ex('Fingertip Push-Ups', sets(3, w), r(15, w), '60 s', 'Finger and hand strength', 'CrossFit turf'),
       ex('Dead Hang (max)', 3, w < 6 ? `${45 + 15 * Math.min(w, 5)} s` : '45 s', '60 s', 'Grip is life. From Wk 4, hang from two towels over the bar', 'Pull-up station (bring a towel)'),
       ex('Plate Pinch Holds', 3, `${r(30, w)} s`, '60 s', 'Pinch two plates smooth-side out; go heavier when it gets easy', '2 × 10 lb plates'),
     ]],
     (w) => {
       const rounds = { 1: 6, 2: 8, 3: 10, 4: 10, 5: 12, 6: 6 }[w];
       return ['Striking & Conditioning - "Shadow Fight"', [
-        ex('Jump Rope Warm-Up', 1, mins(10, w), '-', 'Alternate footwork patterns. No rope? Same time on the Assault Bike', 'Turf (bring your own rope)'),
-        ex('Shadowboxing vs. Imaginary Opponent', rounds, '3 min', '1 min', 'Visualize a real opponent attacking you. Use a mirror to check your guard', 'Turf or an empty studio'),
-        ex('Heavy Bag Power Rounds', Math.floor(rounds / 2) + 1, '3 min', '1 min', 'Last 30 s of each round = all-out flurry. No bag? Alternate explosive single-arm cable punches and med-ball rotational wall throws', 'Heavy bag if your GHF has one; else cables + med ball'),
-        ex('Assault Bike Sprints', { 1: 8, 2: 10, 3: 12, 4: 12, 5: 15, 6: 6 }[w], '30 s on / 30 s off', '-', '95%+ effort every sprint; easy pedaling between', 'Assault Bikes on the turf'),
-        ex('Burpee Sprawls', 5, r(15, w), '45 s', 'Fast hip drop, explode up', 'Turf'),
+        ex('Jump Rope Warm-Up', 1, mins(10, w), '-', 'Alternate footwork patterns. No rope? Same time on the Assault Bike', 'CrossFit turf (bring your own rope)'),
+        ex('Shadowboxing vs. Imaginary Opponent', rounds, '3 min', '1 min', 'Visualize a real opponent attacking you. Use a mirror to check your guard', 'CrossFit turf or an empty studio'),
+        ex('Heavy Bag Power Rounds', Math.floor(rounds / 2) + 1, '3 min', '1 min', 'Last 30 s of each round = all-out flurry. No bag? Alternate explosive single-arm cable punches and med-ball rotational wall throws', 'Heavy bag if Tioga has one; else cables + med ball'),
+        ex('Assault Bike Sprints', { 1: 8, 2: 10, 3: 12, 4: 12, 5: 15, 6: 6 }[w], '30 s on / 30 s off', '-', '95%+ effort every sprint; easy pedaling between', 'Assault Bike (CrossFit turf or cardio floor)'),
+        ex('Burpee Sprawls', 5, r(15, w), '45 s', 'Fast hip drop, explode up', 'CrossFit turf'),
         ex('Neck Bridges (front + back)', 3, '30-60 s', '60 s', "Wrestler's bridge on a folded mat; build slowly", 'Stretch area mat'),
       ]];
     },
     (w) => ['Lower Body & Explosive - "Ogre Legs"', [
       ex('Back Squat', sets(5, w), { 1: '5', 2: '5', 3: '4', 4: '3', 5: '2-3', 6: '5 @ 70%' }[w], '3 min', 'Heavy, controlled descent. Set the safety arms', 'Squat rack'),
-      ex('Box Jumps', 5, '5', '90 s', 'Max height, step down', 'Jump boxes on the turf'),
-      ex('Romanian Deadlift', sets(4, w), '8', '2 min', 'Hamstrings and posterior chain', 'Deadlift platform'),
+      ex('Box Jumps', 5, '5', '90 s', 'Max height, step down', 'Jump boxes on the CrossFit turf'),
+      ex('Romanian Deadlift', sets(4, w), '8', '2 min', 'Hamstrings and posterior chain', 'Deadlift platform or rack area'),
       ex('Bulgarian Split Squat', 3, `${r(10, w)}/leg`, '90 s', 'Hold DBs; deep stretch', 'Dumbbells + flat bench'),
-      ex('Pistol Squat Progression', 3, `${r(5, w)}/leg`, '60 s', 'Hold the TRX straps for balance; use less help each week', 'TRX on the turf'),
+      ex('Pistol Squat Progression', 3, `${r(5, w)}/leg`, '60 s', 'Hold the TRX straps for balance; use less help each week', 'TRX on the CrossFit turf'),
       ex('Standing Calf Raises', 4, r(25, w), '45 s', 'Full ROM, 2 s pause at top', 'Standing calf raise machine'),
       ex('Tibialis Raises', 3, r(20, w), '45 s', 'Knee and shin armor. Back against a wall, lift your toes; hold a light DB between your feet on a bench to progress', 'Wall or bench + light DB'),
     ]],
     (w) => ['Calisthenics Volume - "Prison Cell"', [
-      ex('Push-Ups (total, any sets)', 1, `${r(200, w)} total`, 'as needed', 'Break them up however you must', 'Turf'),
+      ex('Push-Ups (total, any sets)', 1, `${r(200, w)} total`, 'as needed', 'Break them up however you must', 'CrossFit turf'),
       ex('Pull-Ups (total)', 1, `${r(50, w)} total`, 'as needed', 'Chin-ups OK after the halfway mark. Finish on the assisted pull-up machine if you stall', 'Pull-up station'),
-      ex('Bodyweight Squats (total)', 1, `${r(300, w)} total`, 'as needed', 'Training-arc volume', 'Turf'),
-      ex('Sit-Ups (total)', 1, `${r(200, w)} total`, 'as needed', 'Hands behind head, controlled', 'Turf or ab bench'),
+      ex('Bodyweight Squats (total)', 1, `${r(300, w)} total`, 'as needed', 'Training-arc volume', 'CrossFit turf'),
+      ex('Sit-Ups (total)', 1, `${r(200, w)} total`, 'as needed', 'Hands behind head, controlled', 'CrossFit turf or ab bench'),
       ex('Handstand Push-Up Progression', 4, Math.max(3, r(5, w)), '90 s', 'Pike > feet-on-box pike > wall HSPU > freestanding', 'Wall + jump box'),
       ex('Hanging Leg Raises', 4, r(12, w), '60 s', 'Toes to bar if able', "Pull-up bar or captain's chair"),
-      ex('Plank (max)', 3, w < 6 ? `${60 + 15 * Math.min(w, 5)} s` : '60 s', '45 s', 'Squeeze everything', 'Turf'),
+      ex('Plank (max)', 3, w < 6 ? `${60 + 15 * Math.min(w, 5)} s` : '60 s', '45 s', 'Squeeze everything', 'CrossFit turf'),
     ]],
     (w) => (w === 6
       ? ['HANMA TEST DAY - Benchmarks', [
-        ex('Warm-Up: Rope + Dynamic Mobility', 1, '15 min', '-', 'Fully warm before testing', 'Turf'),
-        ex('Max Push-Ups (1 set)', 1, 'max', '5 min', 'Log it in Progress', 'Turf'),
+        ex('Warm-Up: Rope + Dynamic Mobility', 1, '15 min', '-', 'Fully warm before testing', 'CrossFit turf'),
+        ex('Max Push-Ups (1 set)', 1, 'max', '5 min', 'Log it in Progress', 'CrossFit turf'),
         ex('Max Pull-Ups (1 set)', 1, 'max', '5 min', 'Log it in Progress', 'Pull-up station'),
         ex('Max Dead Hang', 1, 'max', '5 min', 'Log it in Progress', 'Pull-up station'),
-        ex('Max Plank', 1, 'max', '5 min', 'Log it in Progress', 'Turf'),
+        ex('Max Plank', 1, 'max', '5 min', 'Log it in Progress', 'CrossFit turf'),
         ex('1-Mile Run for Time', 1, '1 mile', '-', 'Log it in Progress. Set the treadmill to 1% incline (matches outdoor effort); use the same setup at week 0', 'Treadmill, 1% incline'),
       ]]
       : ['Full-Body Power + Core & Neck - "Ogre Blood"', [
-        ex('Deadlift', sets(5, w), { 1: '5', 2: '5', 3: '3', 4: '3', 5: '1-2' }[w], '3 min', 'Brace hard; this is your raw power', 'Deadlift platform'),
-        ex('Power Cleans', 5, '3', '2 min', 'Fast bar, crisp catch', 'Deadlift platform, bumper plates'),
-        ex('Medicine Ball Slams', 4, r(12, w), '60 s', 'Rotational + overhead', 'Slam balls on the turf'),
+        ex('Deadlift', sets(5, w), { 1: '5', 2: '5', 3: '3', 4: '3', 5: '1-2' }[w], '3 min', 'Brace hard; this is your raw power', 'Deadlift platform or rack area'),
+        ex('Power Cleans', 5, '3', '2 min', 'Fast bar, crisp catch', 'Deadlift platform or rack area, bumper plates'),
+        ex('Medicine Ball Slams', 4, r(12, w), '60 s', 'Rotational + overhead', 'Slam balls on the CrossFit turf'),
         ex('Landmine Rotations', 3, `${r(10, w)}/side`, '60 s', 'Punch-power transfer. No landmine? Wedge a barbell end into a corner', 'Landmine attachment'),
         ex('Neck Extensions', 3, r(15, w), '60 s', 'Light weight, slow tempo. No neck machine? Lie face-down on a bench with a towel-wrapped plate on the back of your head', '4-way neck machine, or plate + bench'),
         ex('Dragon Flags', 4, Math.max(3, r(5, w)), '90 s', 'Negatives if needed', 'Flat bench'),
-        ex("Farmer's Walk (heavy)", 4, '40 m', '90 s', 'Crush the handles', 'Trap bar or heavy DBs on the turf'),
+        ex("Farmer's Walk (heavy)", 4, '40 m', '90 s', 'Crush the handles', 'Trap bar or heavy DBs on the CrossFit turf'),
       ]]),
     (w) => ['Fight Endurance - "Underground Arena"', [
-      ex('Sled Push Sprints', { 1: 8, 2: 10, 3: 12, 4: 14, 5: 16, 6: 6 }[w], '20-30 m', 'walk back', 'Max effort, low hips, drive the legs. Sled taken? 20 s sprints on the StairMaster or a 12-15% incline treadmill', 'Sled on the turf'),
-      ex('Pad Work / Heavy Bag Combos', { 1: 5, 2: 6, 3: 6, 4: 8, 5: 8, 6: 4 }[w], '3 min', '1 min', 'Combos + defense + footwork. No bag or partner? Shadowbox holding 1-2 lb dumbbells', 'Heavy bag, partner with pads, or turf'),
-      ex('Sandbag / Plate Carry', 5, '50 m', '90 s', 'Odd-object strength. Bear-hug a sandbag, or a 45 lb plate if there are none', 'Turf'),
-      ex('Bear Crawl', 4, '30 m', '60 s', 'Low hips, fast', 'Turf'),
+      ex('Sled Push Sprints', { 1: 8, 2: 10, 3: 12, 4: 14, 5: 16, 6: 6 }[w], '20-30 m', 'walk back', 'Max effort, low hips, drive the legs. Sled taken? 20 s sprints on the StairMaster or a 12-15% incline treadmill', 'Sled on the CrossFit turf (ask the desk)'),
+      ex('Pad Work / Heavy Bag Combos', { 1: 5, 2: 6, 3: 6, 4: 8, 5: 8, 6: 4 }[w], '3 min', '1 min', 'Combos + defense + footwork. No bag or partner? Shadowbox holding 1-2 lb dumbbells', 'Heavy bag, partner with pads, or CrossFit turf'),
+      ex('Sandbag / Plate Carry', 5, '50 m', '90 s', 'Odd-object strength. Bear-hug a sandbag, or a 45 lb plate if there are none', 'CrossFit turf'),
+      ex('Bear Crawl', 4, '30 m', '60 s', 'Low hips, fast', 'CrossFit turf'),
       ex('Kettlebell Swings', 5, r(20, w), '60 s', 'Hip snap, heavy bell', 'Kettlebell rack'),
       ex('Steady-State Run', 1, mins(25, w), '-', 'Zone 2 - conversational pace', 'Treadmill or outside'),
     ]],
     () => ['Active Recovery - "Rest Like a Warrior"', [
-      ex('Easy Swim or Long Walk', 1, '30-45 min', '-', 'Easy pace; swimming is great for sore joints', 'GHF Main indoor pool'),
-      ex('Full-Body Mobility Flow', 1, '20 min', '-', 'Hips, T-spine, shoulders, ankles', 'Stretch area or studio'),
-      ex('Deep Stretching / Splits Work', 1, '15 min', '-', 'Hold each stretch 60-90 s', 'Stretch area'),
+      ex('Long Walk or Easy Swim', 1, '30-45 min', '-', 'Easy pace. Tioga has no pool; your membership covers the pool at GHF Main if you want a swim', 'Outside, or the GHF Main pool'),
+      ex('Full-Body Mobility Flow', 1, '20 min', '-', 'Hips, T-spine, shoulders, ankles', 'Tioga stretching area'),
+      ex('Deep Stretching / Splits Work', 1, '15 min', '-', 'Hold each stretch 60-90 s. Finish with hydro massage in the Chill Studio', 'Tioga stretching area + Chill Studio'),
       ex('Breathing / Meditation', 1, '10 min', '-', 'Box breathing - calm the ogre', 'Anywhere quiet'),
     ]],
   ];
