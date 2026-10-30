@@ -1,0 +1,12 @@
+{
+  "name": "hanma-push",
+  "private": true,
+  "type": "module",
+  "description": "Sends daily reminder pushes for the Hanma Training app",
+  "scripts": {
+    "send": "node send.mjs"
+  },
+  "dependencies": {
+    "web-push": "3.6.7"
+  }
+}

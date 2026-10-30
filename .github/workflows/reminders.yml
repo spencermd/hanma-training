@@ -1,0 +1,32 @@
+name: Daily reminders
+
+on:
+  schedule:
+    - cron: "2 * * * *" # hourly; each device's own time zone and hours decide what gets sent
+  workflow_dispatch:
+    inputs:
+      type:
+        description: Send this reminder to every device right now
+        type: choice
+        options: [morning, evening]
+        default: morning
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: push/package-lock.json
+      - run: npm ci
+        working-directory: push
+      - run: node send.mjs
+        working-directory: push
+        env:
+          VAPID_PUBLIC_KEY: ${{ vars.VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          PUSH_SUBSCRIPTIONS: ${{ secrets.PUSH_SUBSCRIPTIONS }}
+          FORCE_TYPE: ${{ inputs.type }}
