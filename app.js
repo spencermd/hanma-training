@@ -25,13 +25,18 @@ const ui = { tab: 'today', day: null, open: {}, week: null, planOpen: null, shee
 function defaults() {
   return {
     settings: { startDate: P.nextMonday(today()), bodyweight: 180, goal: 'Lean Bulk', morningHour: 7, eveningHour: 20 },
-    logs: {}, bench: {}, weights: {}, push: null, shop: { checked: {} },
+    logs: {}, bench: {}, weights: {}, push: null, shop: { checked: {}, store: {}, mode: 'store' },
   };
+}
+// Fill in fields added in later versions so older saved data and backups keep working.
+function normalize(s) {
+  const d = defaults();
+  return { ...d, ...s, settings: { ...d.settings, ...s.settings }, shop: { ...d.shop, ...(s.shop || {}) } };
 }
 function load() {
   try {
     const s = JSON.parse(localStorage.getItem(KEY));
-    if (s && s.settings) return { ...defaults(), ...s, settings: { ...defaults().settings, ...s.settings } };
+    if (s && s.settings) return normalize(s);
   } catch { /* corrupted or blocked storage: start fresh */ }
   return defaults();
 }
@@ -195,35 +200,59 @@ function renderPlan() {
 
 // ---------- Grocery ----------
 const roundAmt = (x) => (x >= 10 ? Math.round(x) : Math.round(x * 10) / 10);
+const money = (x) => `$${x.toFixed(2)}`;
+const otherStore = (s) => (s === 'Aldi' ? 'Publix' : 'Aldi');
 function buyLabel(i) {
-  if (i.pack === 'lb') return `~${(Math.ceil(i.amount * 4) / 4).toFixed(2).replace(/\.?0+$/, '')} lb`;
-  if (i.pack === 'each') return `${i.packs}`;
-  return `${i.packs} × ${i.pack}`;
+  if (i.byWeight) return `${i.qty} lb`;
+  if (i.pack === 'each') return `${i.qty}`;
+  return `${i.qty} × ${i.pack}`;
+}
+function groceryRow(i, mode) {
+  const got = state.shop.checked[i.food], alt = otherStore(i.store);
+  const overridden = i.store !== i.recommended;
+  return `<li class="row ${got ? 'done' : ''}">
+    <button class="check" data-action="shop-toggle" data-food="${esc(i.food)}" aria-label="Got ${esc(i.food)}"></button>
+    <div class="row-main">
+      <div class="row-title">${esc(i.food)}${mode === 'category' ? ` <span class="badge">${i.store}</span>` : ''}</div>
+      <div class="row-meta">Buy <b>${esc(buyLabel(i))}</b> · need ${roundAmt(i.amount)} ${esc(i.unit)}</div>
+      <div class="stock">${overridden ? `You moved this to ${i.store}. Recommended: ${i.recommended}.` : esc(i.why)}</div>
+      ${i.weeksCovered >= 2 ? `<div class="stock">One lasts ~${Math.floor(i.weeksCovered)} weeks. Skip it if you still have some.</div>` : ''}
+      <button class="link" data-action="shop-switch" data-food="${esc(i.food)}">Buy at ${alt} instead (≈ ${money(i.costAt[alt])})</button>
+    </div>
+    <div class="buy">≈ ${money(i.cost)}</div>
+  </li>`;
 }
 function renderGrocery() {
-  const s = state.settings, groups = P.weeklyGroceries(s), checked = state.shop.checked;
-  const all = groups.flatMap((g) => g.items), got = all.filter((i) => checked[i.food]).length;
+  const s = state.settings, shop = state.shop;
+  const g = P.weeklyGroceries(s, (food) => shop.store[food]);
+  const got = g.items.filter((i) => shop.checked[i.food]).length;
   const sundays = [];
   for (let n = 0; n < 6; n++) sundays.push(fmtDate(P.addDays(s.startDate, -1 + n * 7), { month: 'short', day: 'numeric' }));
+  const mode = shop.mode === 'category' ? 'category' : 'store';
+  const body = mode === 'store'
+    ? g.stores.map((st) => `<section class="card">
+        <div class="card-head"><h2>${st.name}</h2><span class="count">≈ ${money(st.total)}</span></div>
+        ${st.zones.map((z) => `<h3 class="aisle" style="margin-top:12px">${esc(z.name)}</h3><ul class="list">${z.items.map((i) => groceryRow(i, mode)).join('')}</ul>`).join('')}
+      </section>`).join('')
+    : g.categories.map((c) => `<section class="card"><h3 class="aisle">${esc(c.name)}</h3>
+        <ul class="list">${c.items.map((i) => groceryRow(i, mode)).join('')}</ul></section>`).join('');
   return `<section class="hero"><div class="kicker">Weekly Shopping</div><h1>Grocery List</h1>
     <div class="sub">One week of the meal plan, scaled to ${esc(s.bodyweight)} lb · ${esc(s.goal)}. Shop on your rest day: ${sundays.join(', ')}.</div></section>
   <section class="card">
-    <div class="card-head"><h2>In the cart</h2><span class="count">${got}/${all.length}</span></div>
-    ${bar(got / all.length, got === all.length ? 'green' : '')}
+    <div class="card-head"><h2>This trip</h2><span class="count">≈ ${money(g.trip)}</span></div>
+    <p class="help" style="margin:0 0 10px">${g.stores.map((st) => `${st.name} ≈ ${money(st.total)}`).join(' + ')}.
+      Averages ≈ <b>${money(g.perWeek)}/week</b> because pantry staples last several weeks.
+      All at Publix would be ≈ ${money(g.allPublix)}, so you save ≈ ${money(g.allPublix - g.trip)}.</p>
+    <div class="card-head"><h2 style="font-size:14px">In the cart</h2><span class="count">${got}/${g.items.length}</span></div>
+    ${bar(got / g.items.length, got === g.items.length ? 'green' : '')}
+    <div class="seg" style="margin:12px 0 0">
+      <button data-action="shop-mode" data-mode="store" class="${mode === 'store' ? 'active' : ''}">By store</button>
+      <button data-action="shop-mode" data-mode="category" class="${mode === 'category' ? 'active' : ''}">By category</button>
+    </div>
     <div class="btn-row"><button class="btn secondary small" data-action="shop-clear">Start a new week</button></div>
   </section>
-  ${groups.map((g) => `<section class="card"><h3 class="aisle">${esc(g.aisle)}</h3><ul class="list">
-    ${g.items.map((i) => `<li class="row ${checked[i.food] ? 'done' : ''}">
-      <button class="check" data-action="shop-toggle" data-food="${esc(i.food)}" aria-label="Got ${esc(i.food)}"></button>
-      <div class="row-main">
-        <div class="row-title">${esc(i.food)}</div>
-        <div class="row-meta">Need ${roundAmt(i.amount)} ${esc(i.unit)} this week</div>
-        ${i.weeksCovered >= 2 ? `<div class="stock">One lasts ~${Math.floor(i.weeksCovered)} weeks. Skip it if you still have some.</div>` : ''}
-      </div>
-      <div class="buy">${esc(buyLabel(i))}</div>
-    </li>`).join('')}
-  </ul></section>`).join('')}
-  <p class="help">Meat amounts are raw weight (about 8 oz raw per 6 oz cooked serving). Off-plan foods you log aren't included. Prep tip: cook chicken, beef, rice and potatoes in bulk on Sunday and Wednesday.</p>`;
+  ${body}
+  <p class="help">Prices are estimates (Oct 2026): Aldi from 2026 price surveys, Publix from recent listings and weekly-ad sales. Check Publix's weekly ad for BOGO deals on meat and seafood. Store sections follow each chain's usual layout; your store may differ a little. Meat is raw weight (about 8 oz raw per 6 oz cooked serving). Off-plan foods you log aren't included.</p>`;
 }
 
 // ---------- Progress ----------
@@ -432,7 +461,7 @@ async function importData(file) {
   try {
     const s = JSON.parse(await file.text());
     if (!s || !s.settings || !s.logs) throw new Error('not a Hanma backup');
-    state = { ...defaults(), ...s, settings: { ...defaults().settings, ...s.settings } };
+    state = normalize(s);
     save(); render(); toast('Backup restored.');
   } catch (err) {
     toast(`Import failed: ${err.message}`);
@@ -493,6 +522,13 @@ document.addEventListener('click', async (e) => {
       save(); return render();
     }
     case 'shop-clear': state.shop.checked = {}; save(); return render();
+    case 'shop-mode': state.shop.mode = b.dataset.mode; save(); return render();
+    case 'shop-switch': {
+      const f = b.dataset.food, rec = P.weeklyGroceries(state.settings).items.find((x) => x.food === f).recommended;
+      const next = otherStore(state.shop.store[f] || rec);
+      if (next === rec) delete state.shop.store[f]; else state.shop.store[f] = next;
+      save(); return render();
+    }
     case 'enable-push': return enablePush();
     case 'test-push': return testPush();
     case 'copy-code': {

@@ -126,7 +126,8 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--red); outli
 /* Grocery */
 .aisle { color: var(--gold); font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 4px; }
 .buy { color: var(--text); font-weight: 700; white-space: nowrap; text-align: right; }
-.stock { color: var(--muted); font-size: 12px; }
+.stock { color: var(--muted); font-size: 12px; margin-top: 2px; }
+.link { color: var(--red); font-size: 12px; font-weight: 600; padding: 6px 0 0; text-align: left; }
 
 /* Forms */
 .field { display: block; margin-bottom: 12px; }

@@ -125,39 +125,49 @@
     'Olive Oil': ['1 tbsp', 120, 0, 0, 14],
   };
 
-  // How each food is bought: aisle, shopping unit, amount of that unit per serving,
-  // and the store pack (name, size in the same unit). Raw meat ≈ 8 oz per 6 oz cooked.
-  const AISLES = ['Meat & Fish', 'Dairy & Eggs', 'Produce', 'Grains & Bread', 'Pantry'];
+  // How each food is bought: category, shopping unit, amount of that unit per serving,
+  // store pack (name, size in the same unit), estimated pack price at Aldi and Publix,
+  // the recommended store, and why. Raw meat ≈ 8 oz per 6 oz cooked serving.
+  // Prices are Oct 2026 estimates: Aldi from 2026 price surveys; Publix meat/seafood
+  // from recent listings and weekly-ad sale prices, Publix staples estimated.
+  const CATEGORIES = ['Meat & Fish', 'Dairy & Eggs', 'Produce', 'Bakery', 'Pantry'];
+  const STORES = {
+    Aldi: [['Produce', 'Produce (by the entrance)'], ['Bakery', 'Bread'], ['Pantry', 'Center aisles'],
+      ['Dairy & Eggs', 'Dairy cooler'], ['Meat & Fish', 'Meat cooler']],
+    Publix: [['Produce', 'Produce'], ['Bakery', 'Bakery'], ['Meat & Fish', 'Seafood counter & meat (back)'],
+      ['Pantry', 'Center aisles'], ['Dairy & Eggs', 'Dairy (back wall)']],
+  };
+  const item = (category, unit, per, pack, size, aldi, publix, store, why) => ({ category, unit, per, pack, size, price: { Aldi: aldi, Publix: publix }, store, why });
   const SHOP = {
-    'Whole Eggs': ['Dairy & Eggs', 'eggs', 1, 'dozen', 12],
-    'Egg Whites': ['Dairy & Eggs', 'cups', 1, '32 oz carton', 4],
-    'Chicken Breast': ['Meat & Fish', 'lb raw', 0.5, 'lb', 1],
-    'Lean Ground Beef 90/10': ['Meat & Fish', 'lb raw', 0.5, 'lb', 1],
-    'Sirloin Steak': ['Meat & Fish', 'lb raw', 0.5, 'lb', 1],
-    'Salmon': ['Meat & Fish', 'lb raw', 0.47, 'lb', 1],
-    'Tuna (canned in water)': ['Pantry', 'cans', 1, '5 oz can', 1],
-    'Greek Yogurt (nonfat)': ['Dairy & Eggs', 'cups', 1, '32 oz tub', 4],
-    'Cottage Cheese (2%)': ['Dairy & Eggs', 'cups', 1, '24 oz tub', 3],
-    'Whole Milk': ['Dairy & Eggs', 'cups', 1, 'half gallon', 8],
-    'Whey Protein': ['Pantry', 'scoops', 1, '2 lb tub (~30 scoops)', 30],
-    'Rolled Oats': ['Grains & Bread', 'cups dry', 0.5, '42 oz canister (~15 cups)', 15],
-    'White Rice': ['Grains & Bread', 'lb dry', 0.14, '2 lb bag', 2],
-    'Pasta': ['Grains & Bread', 'oz dry', 2, '16 oz box', 16],
-    'Sweet Potato': ['Produce', 'medium', 1, 'each', 1],
-    'White Potato': ['Produce', 'medium', 1, 'each', 1],
-    'Bagel (plain)': ['Grains & Bread', 'bagels', 1, '6-pack', 6],
-    'Whole-Wheat Bread': ['Grains & Bread', 'slices', 1, 'loaf (~20 slices)', 20],
-    'Black Beans': ['Pantry', 'cups', 1, '15 oz can (~1.5 cups)', 1.5],
-    'Banana': ['Produce', 'bananas', 1, 'each', 1],
-    'Blueberries': ['Produce', 'cups', 1, 'pint (~2 cups)', 2],
-    'Apple': ['Produce', 'apples', 1, 'each', 1],
-    'Honey': ['Pantry', 'tbsp', 1, '12 oz bottle (~17 tbsp)', 17],
-    'Broccoli': ['Produce', 'lb', 0.33, 'lb', 1],
-    'Spinach (raw)': ['Produce', 'oz', 2, '10 oz bag', 10],
-    'Almonds': ['Pantry', 'oz', 1, '16 oz bag', 16],
-    'Peanut Butter': ['Pantry', 'tbsp', 2, '16 oz jar (~28 tbsp)', 28],
-    'Avocado': ['Produce', 'avocados', 0.5, 'each', 1],
-    'Olive Oil': ['Pantry', 'tbsp', 1, '17 oz bottle (~34 tbsp)', 34],
+    'Whole Eggs': item('Dairy & Eggs', 'eggs', 1, 'dozen', 12, 2.05, 3.99, 'Aldi', 'Same grade A eggs for about half the price'),
+    'Egg Whites': item('Dairy & Eggs', 'cups', 1, '32 oz carton', 4, 3.49, 5.49, 'Aldi', 'Cheaper, same product'),
+    'Chicken Breast': item('Meat & Fish', 'lb raw', 0.5, 'lb', 1, 3.29, 5.53, 'Aldi', 'Kirkwood family packs are a fraction of Publix; Never Any! if you want antibiotic-free'),
+    'Lean Ground Beef 90/10': item('Meat & Fish', 'lb raw', 0.5, 'lb', 1, 5.79, 8.49, 'Aldi', 'Store ground beef runs about 2x at Publix'),
+    'Sirloin Steak': item('Meat & Fish', 'lb raw', 0.5, 'lb', 1, 8.99, 9.99, 'Publix', 'USDA Choice, better trimmed. Price assumes a sale: buy on weekly-ad or BOGO weeks (regular ~$15/lb)'),
+    'Salmon': item('Meat & Fish', 'lb raw', 0.47, 'lb', 1, 9.99, 12.99, 'Publix', 'Fresh from the seafood counter, and they will skin it for you'),
+    'Tuna (canned in water)': item('Pantry', 'cans', 1, '5 oz can', 1, 0.85, 1.79, 'Aldi', 'Same canned tuna, half the price'),
+    'Greek Yogurt (nonfat)': item('Dairy & Eggs', 'cups', 1, '32 oz tub', 4, 3.65, 5.99, 'Aldi', 'Friendly Farms tub is the best value'),
+    'Cottage Cheese (2%)': item('Dairy & Eggs', 'cups', 1, '24 oz tub', 3, 2.99, 4.99, 'Aldi', 'Cheaper, same macros'),
+    'Whole Milk': item('Dairy & Eggs', 'cups', 1, 'half gallon', 8, 1.79, 3.29, 'Aldi', 'Cheaper, same product'),
+    'Whey Protein': item('Pantry', 'scoops', 1, '2 lb tub (~30 scoops)', 30, 19.99, 29.99, 'Aldi', 'Elevation whey is a bargain. If it is out of stock, try Publix or order online'),
+    'Rolled Oats': item('Pantry', 'cups dry', 0.5, '42 oz canister (~15 cups)', 15, 3.49, 5.29, 'Aldi', 'Same oats for less'),
+    'White Rice': item('Pantry', 'lb dry', 0.14, '5 lb bag', 5, 3.79, 6.49, 'Aldi', 'Same rice, much cheaper in the 5 lb bag'),
+    'Pasta': item('Pantry', 'oz dry', 2, '16 oz box', 16, 0.95, 1.89, 'Aldi', 'Under $1 a box'),
+    'Sweet Potato': item('Produce', 'medium', 1, 'each', 1, 0.35, 0.6, 'Aldi', 'Hardy produce; Aldi quality is fine and much cheaper'),
+    'White Potato': item('Produce', 'medium', 1, '5 lb bag (~10)', 10, 3.59, 5.49, 'Aldi', 'Hardy produce; Aldi quality is fine and much cheaper'),
+    'Bagel (plain)': item('Bakery', 'bagels', 1, '6-pack', 6, 2.29, 3.99, 'Aldi', 'Cheaper packaged bagels'),
+    'Whole-Wheat Bread': item('Bakery', 'slices', 1, 'loaf (~20 slices)', 20, 2.49, 3.79, 'Aldi', 'Cheaper; freeze half the loaf so it stays fresh'),
+    'Black Beans': item('Pantry', 'cups', 1, '15 oz can (~1.5 cups)', 1.5, 0.72, 1.29, 'Aldi', 'Under $1 a can'),
+    'Banana': item('Produce', 'bananas', 1, 'each', 1, 0.17, 0.25, 'Aldi', 'Cheapest anywhere; buy some green so they last the week'),
+    'Blueberries': item('Produce', 'cups', 1, 'pint (~2 cups)', 2, 3.29, 4.49, 'Publix', 'Berries are more consistent here. Budget swap: Aldi frozen blueberries'),
+    'Apple': item('Produce', 'apples', 1, '3 lb bag (~7)', 7, 4.29, 5.99, 'Aldi', 'Bagged apples are cheaper per apple'),
+    'Honey': item('Pantry', 'tbsp', 1, '12 oz bottle (~17 tbsp)', 17, 3.49, 5.49, 'Aldi', 'Cheaper, same product'),
+    'Broccoli': item('Produce', 'lb', 0.33, 'lb', 1, 1.99, 2.99, 'Aldi', 'Crowns hold up well; Aldi is cheaper'),
+    'Spinach (raw)': item('Produce', 'oz', 2, '10 oz bag', 10, 2.99, 4.29, 'Publix', 'Delicate greens: pick the bag with the latest date'),
+    'Almonds': item('Pantry', 'oz', 1, '16 oz bag', 16, 5.49, 8.99, 'Aldi', 'Southern Grove nuts are a big saving'),
+    'Peanut Butter': item('Pantry', 'tbsp', 2, '16 oz jar (~28 tbsp)', 28, 2.09, 3.49, 'Aldi', 'About $2 a jar'),
+    'Avocado': item('Produce', 'avocados', 0.5, 'each', 1, 0.89, 1.5, 'Publix', 'Easier to find ripe ones; Aldi bags are often rock-hard'),
+    'Olive Oil': item('Pantry', 'tbsp', 1, '25 oz bottle (~50 tbsp)', 50, 6.39, 9.99, 'Aldi', 'Same oil for a lot less'),
   };
 
   const meal = (name, time, items) => ({ name, time, items: items.map(([food, s]) => ({ food, base: s })) });
@@ -244,7 +254,8 @@
 
   // One week of planned meals, totalled and converted to store units. Every program
   // week eats the same menus, so this list only changes when bodyweight or goal does.
-  function weeklyGroceries(settings) {
+  // storeFor(food) lets the person override the recommended store per item.
+  function weeklyGroceries(settings, storeFor = () => null) {
     const servings = {};
     for (let n = 1; n <= 7; n++) {
       for (const m of getDay(n, settings).meals) {
@@ -252,13 +263,34 @@
       }
     }
     const items = Object.entries(servings).map(([food, s]) => {
-      const [aisle, unit, perServing, pack, packSize] = SHOP[food];
-      const amount = s * perServing;
-      const packs = Math.max(1, Math.ceil(amount / packSize - 1e-9));
-      return { food, aisle, unit, amount, pack, packs, weeksCovered: (packs * packSize) / amount };
+      const sh = SHOP[food];
+      const amount = s * sh.per;
+      const store = storeFor(food) || sh.store;
+      // Meat is bought by weight (to the nearest 1/4 lb); everything else by whole packs.
+      const byWeight = sh.pack === 'lb';
+      const qty = byWeight ? Math.ceil(amount * 4) / 4 : Math.max(1, Math.ceil(amount / sh.size - 1e-9));
+      const cost = (s2) => qty * sh.price[s2];
+      return {
+        food, category: sh.category, unit: sh.unit, amount, pack: sh.pack, byWeight, qty, why: sh.why,
+        store, recommended: sh.store, cost: cost(store), costAt: { Aldi: cost('Aldi'), Publix: cost('Publix') },
+        weeklyCost: (amount / sh.size) * sh.price[store],
+        weeksCovered: byWeight ? 1 : (qty * sh.size) / amount,
+      };
     });
-    return AISLES.map((aisle) => ({ aisle, items: items.filter((i) => i.aisle === aisle).sort((a, b) => a.food.localeCompare(b.food)) }))
-      .filter((g) => g.items.length);
+    const byName = (a, b) => a.food.localeCompare(b.food);
+    const categories = CATEGORIES.map((c) => ({ name: c, items: items.filter((i) => i.category === c).sort(byName) })).filter((g) => g.items.length);
+    const stores = Object.entries(STORES).map(([name, zones]) => {
+      const mine = items.filter((i) => i.store === name);
+      return {
+        name, total: mine.reduce((t, i) => t + i.cost, 0),
+        zones: zones.map(([c, label]) => ({ name: label, items: mine.filter((i) => i.category === c).sort(byName) })).filter((z) => z.items.length),
+      };
+    }).filter((s) => s.zones.length);
+    const sum = (f) => items.reduce((t, i) => t + f(i), 0);
+    return {
+      items, categories, stores,
+      trip: sum((i) => i.cost), perWeek: sum((i) => i.weeklyCost), allPublix: sum((i) => i.costAt.Publix),
+    };
   }
 
   // Dates are handled as 'YYYY-MM-DD' strings in local time.
