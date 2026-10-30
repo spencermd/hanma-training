@@ -1,6 +1,6 @@
 importScripts('config.js', 'plan.js', 'store.js');
 
-const CACHE = 'hanma-v4';
+const CACHE = 'hanma-v5';
 const ASSETS = [
   './', 'index.html', 'styles.css', 'app.js', 'plan.js', 'store.js', 'config.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'icons/badge-96.png',

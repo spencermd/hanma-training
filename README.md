@@ -2,7 +2,7 @@
 
 A phone app for the 6-week Baki Hanma workout and diet plan. It works on Android (Pixel) and iPhone. Install it from the browser to your home screen.
 
-- **Today:** the day's workout and meals. Check off exercises, log weights and reps, mark meals as eaten, log other food, check off supplements, and log your bodyweight.
+- **Today:** the day's workout and meals. Each exercise shows where to do it at Gainesville Health & Fitness (squat rack, platform, turf, sled, pool), with a backup if that equipment isn't there. Check off exercises, log weights and reps, mark meals as eaten, log other food, check off supplements, and log your bodyweight.
 - **Plan:** all 42 days, week by week.
 - **Grocery:** a weekly shopping list split between Aldi and Publix (cheapest store unless quality is worth paying for), in walking order for each store, with estimated costs, a per-item store switch, a category view, and check-offs. The Sunday morning reminder says to restock.
 - **Progress:** completion stats, streak, benchmark tests (weeks 0, 3 and 6) and a bodyweight chart.

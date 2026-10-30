@@ -72,6 +72,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--red); outli
 .row-meta { color: var(--muted); font-size: 13px; margin-top: 1px; }
 .row-meta b { color: var(--text); font-weight: 600; }
 .row-note { color: #bbb; font-size: 13px; margin-top: 6px; }
+.where { color: var(--gold); font-size: 12px; margin-top: 2px; opacity: .85; }
 .row-extra { margin-top: 8px; }
 .logged { color: var(--gold); font-size: 13px; margin-top: 3px; }
 

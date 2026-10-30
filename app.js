@@ -139,6 +139,7 @@ function exRow(n, x, i, log) {
       <button class="row-main" style="width:100%" data-action="expand" data-key="${n}-${i}">
         <div class="row-title">${esc(x.name)}</div>
         <div class="row-meta"><b>${dose}</b>${x.rest !== '-' ? ` · rest ${esc(x.rest)}` : ''}</div>
+        ${x.where ? `<div class="where">📍 ${esc(x.where)}</div>` : ''}
         ${l.note && !open ? `<div class="logged">✎ ${esc(l.note)}</div>` : ''}
       </button>
       ${open ? `<div class="row-extra">
