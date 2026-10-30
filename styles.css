@@ -129,6 +129,9 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--red); outli
 .stock { color: var(--muted); font-size: 12px; margin-top: 2px; }
 .link { color: var(--red); font-size: 12px; font-weight: 600; padding: 6px 0 0; text-align: left; }
 
+.supp-edit { display: grid; gap: 6px; padding: 10px 0; border-top: 1px solid var(--line); }
+.card-head + .supp-edit { border-top: 0; padding-top: 0; }
+
 /* Forms */
 .field { display: block; margin-bottom: 12px; }
 .field > span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 4px; }

@@ -24,7 +24,10 @@ const ui = { tab: 'today', day: null, open: {}, week: null, planOpen: null, shee
 // ---------- State ----------
 function defaults() {
   return {
-    settings: { startDate: P.nextMonday(today()), bodyweight: 180, goal: 'Lean Bulk', morningHour: 7, eveningHour: 20 },
+    settings: {
+      startDate: P.nextMonday(today()), bodyweight: 180, goal: 'Lean Bulk', morningHour: 7, eveningHour: 20,
+      supplements: JSON.parse(JSON.stringify(P.DEFAULT_SUPPLEMENTS)),
+    },
     logs: {}, bench: {}, weights: {}, push: null, shop: { checked: {}, store: {}, mode: 'store' },
   };
 }
@@ -44,9 +47,9 @@ function save() {
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { toast('Could not save. Is storage full?'); }
   Store.set('state', state).catch(() => {});
 }
-const emptyLog = () => ({ ex: {}, meals: {}, foods: [] });
-const logFor = (n) => (state.logs[n] ||= emptyLog());
-const peekLog = (n) => state.logs[n] || emptyLog();
+const emptyLog = () => ({ ex: {}, meals: {}, foods: [], supps: {} });
+const logFor = (n) => { const l = (state.logs[n] ||= emptyLog()); l.supps ||= {}; return l; };
+const peekLog = (n) => ({ ...emptyLog(), ...state.logs[n] });
 const programDay = () => P.dayNumber(state.settings.startDate, today());
 const clampDay = (n) => Math.min(P.TOTAL_DAYS, Math.max(1, n));
 const currentDay = () => ui.day ?? clampDay(programDay());
@@ -116,6 +119,7 @@ function renderToday() {
     ${log.foods.length ? `<div style="margin-top:4px">${log.foods.map(extraRow).join('')}</div>` : ''}
     <button class="btn secondary" style="margin-top:10px" data-action="add-food">+ Log other food</button>
   </section>
+  ${suppCard(n, d, log)}
   <section class="card">
     <div class="card-head"><h2>Bodyweight</h2><span class="count">${fmtDate(dateOf(n))}</span></div>
     <div class="grid2">
@@ -155,6 +159,19 @@ function mealRow(m, i, log) {
       <ul class="items">${m.items.map((it) => `<li><span>${esc(it.food)}</span><span>${it.servings} × ${esc(it.serving)}</span></li>`).join('')}</ul>
     </div>
   </li>`;
+}
+
+function suppCard(n, d, log) {
+  const list = P.supplementsFor(state.settings, d);
+  if (!list.length) return '';
+  const done = list.filter((x) => log.supps[x.id]).length;
+  return `<section class="card">
+    <div class="card-head"><h2>Supplements</h2><span class="count">${done}/${list.length}</span></div>
+    <ul class="list">${list.map((x) => `<li class="row ${log.supps[x.id] ? 'done' : ''}">
+      <button class="check" data-action="toggle-supp" data-id="${esc(x.id)}" aria-label="Mark ${esc(x.name)} taken"></button>
+      <div class="row-main"><div class="row-title">${esc(x.name)}</div><div class="row-meta">${esc(x.when)}</div></div>
+    </li>`).join('')}</ul>
+  </section>`;
 }
 
 const extraRow = (f, i) => `<div class="extra-food">
@@ -352,6 +369,18 @@ function renderSettings() {
     Rest day: <b>${P.fmtNum(rest.kcal)} kcal</b> · P ${rest.protein} g · C ${rest.carbs} g · F ${rest.fat} g<br>
     Meal portions rescale to these targets automatically.</p>
   </section>
+  <section class="card"><div class="card-head"><h2>Supplements</h2><span class="count">${s.supplements.length}</span></div>
+    ${s.supplements.map((x, i) => `<div class="supp-edit">
+      <input aria-label="Supplement name" data-bind="supp" data-i="${i}" data-field="name" value="${esc(x.name)}">
+      <div class="grid2">
+        <input aria-label="When to take it" placeholder="When" data-bind="supp" data-i="${i}" data-field="when" value="${esc(x.when)}">
+        <select aria-label="Which days" data-bind="supp" data-i="${i}" data-field="days">${Object.entries(P.SUPP_DAYS).map(([k, v]) => `<option value="${k}" ${k === x.days ? 'selected' : ''}>${v}</option>`).join('')}</select>
+      </div>
+      <button class="link" data-action="del-supp" data-i="${i}">Remove</button>
+    </div>`).join('')}
+    <button class="btn secondary" style="margin-top:10px" data-action="add-supp">+ Add supplement</button>
+    <p class="help">Shows up as a checklist on the Today tab, and the evening check-in counts it.</p>
+  </section>
   <section class="card"><div class="card-head"><h2>Daily reminders</h2><span class="status ${on ? 'on' : 'off'}">${on ? 'On' : 'Off'}</span></div>
     ${needsInstall ? `<div class="banner">On iPhone, notifications only work from the Home Screen app. Tap <b>Share</b> → <b>Add to Home Screen</b>, then open Hanma from there.</div>` : ''}
     <div class="grid2">
@@ -508,6 +537,16 @@ document.addEventListener('click', async (e) => {
       if (meals[i]) navigator.vibrate?.(15);
       save(); return render();
     }
+    case 'toggle-supp': {
+      const supps = logFor(n).supps, id = b.dataset.id;
+      if (supps[id]) delete supps[id]; else { supps[id] = true; navigator.vibrate?.(15); }
+      save(); return render();
+    }
+    case 'add-supp':
+      state.settings.supplements.push({ id: `s${Date.now()}`, name: 'New supplement', when: '', days: 'daily' });
+      save(); render();
+      return document.querySelectorAll('[data-field=name]')[state.settings.supplements.length - 1]?.select();
+    case 'del-supp': state.settings.supplements.splice(i, 1); save(); return render();
     case 'expand': ui.open[b.dataset.key] = !ui.open[b.dataset.key]; return render();
     case 'add-food': ui.sheet = { mode: 'db', day: n }; return renderSheet();
     case 'sheet-mode': ui.sheet.mode = b.dataset.mode; return renderSheet();
@@ -561,6 +600,12 @@ document.addEventListener('change', (e) => {
   if (kind === 'weight') {
     const v = parseFloat(el.value);
     if (v > 0) state.weights[el.dataset.date] = v; else delete state.weights[el.dataset.date];
+    save(); return;
+  }
+  if (kind === 'supp') {
+    const x = state.settings.supplements[el.dataset.i];
+    if (!x) return;
+    x[el.dataset.field] = el.dataset.field === 'name' ? (el.value.trim() || x.name) : el.value.trim();
     save(); return;
   }
   if (kind === 'bench') {

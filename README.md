@@ -2,11 +2,11 @@
 
 A phone app for the 6-week Baki Hanma workout and diet plan. It works on Android (Pixel) and iPhone. Install it from the browser to your home screen.
 
-- **Today:** the day's workout and meals. Check off exercises, log weights and reps, mark meals as eaten, log other food, and log your bodyweight.
+- **Today:** the day's workout and meals. Check off exercises, log weights and reps, mark meals as eaten, log other food, check off supplements, and log your bodyweight.
 - **Plan:** all 42 days, week by week.
 - **Grocery:** a weekly shopping list split between Aldi and Publix (cheapest store unless quality is worth paying for), in walking order for each store, with estimated costs, a per-item store switch, a category view, and check-offs. The Sunday morning reminder says to restock.
 - **Progress:** completion stats, streak, benchmark tests (weeks 0, 3 and 6) and a bodyweight chart.
-- **Settings:** start date, bodyweight and goal (meal portions rescale to fit), reminder times, and backup/restore.
+- **Settings:** start date, bodyweight and goal (meal portions rescale to fit), your supplement list (name, timing, which days), reminder times, and backup/restore.
 - **Reminders:** a morning push with the day's plan and an evening check-in on what's still unlogged.
 
 All logs stay on your phone. The push only says "morning" or "evening"; the phone builds the notification text itself.
@@ -64,6 +64,6 @@ If you change reminder times, or a run's log says a subscription "expired", tap 
 node tools/serve.mjs
 ```
 
-Then open http://localhost:5173. `node tools/make-icons.mjs` regenerates the icons. The plan data in [`plan.js`](plan.js) matches the two spreadsheets exactly.
+Then open http://localhost:5173. `node tools/make-icons.mjs` regenerates the icons. The workouts in [`plan.js`](plan.js) match the workout spreadsheet exactly; the menus follow the diet spreadsheet plus an extra vegetable at dinner.
 
 *Inspired by a fictional character. Check with a doctor before starting, and scale everything to your level.*

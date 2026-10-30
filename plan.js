@@ -1,5 +1,6 @@
 /* Shared plan data and logic: used by the page, the service worker and Node.
-   Mirrors Baki_Hanma_6_Week_Program.xlsx and Baki_Hanma_Diet_Plan.xlsx. */
+   Workouts mirror Baki_Hanma_6_Week_Program.xlsx; menus follow Baki_Hanma_Diet_Plan.xlsx
+   plus an extra vegetable at dinner. */
 (function (root) {
   const TOTAL_DAYS = 42;
   const PHASE = { 1: 'Foundation', 2: 'Foundation', 3: 'Build', 4: 'Build', 5: 'Peak (Ogre Mode)', 6: 'Deload + Hanma Test' };
@@ -119,6 +120,8 @@
     'Honey': ['1 tbsp', 64, 0, 17, 0],
     'Broccoli': ['1 cup cooked', 55, 3.7, 11, 0.6],
     'Spinach (raw)': ['2 cups', 14, 1.7, 2.2, 0.2],
+    'Mixed Vegetables (frozen)': ['1 cup cooked', 118, 5.2, 24, 0.3],
+    'Green Beans (frozen)': ['1 cup cooked', 38, 2, 8.5, 0.3],
     'Almonds': ['1 oz (23 nuts)', 164, 6, 6, 14],
     'Peanut Butter': ['2 tbsp', 190, 7, 7, 16],
     'Avocado': ['1/2 fruit', 120, 1.5, 6.4, 11],
@@ -130,12 +133,12 @@
   // the recommended store, and why. Raw meat ≈ 8 oz per 6 oz cooked serving.
   // Prices are Oct 2026 estimates: Aldi from 2026 price surveys; Publix meat/seafood
   // from recent listings and weekly-ad sale prices, Publix staples estimated.
-  const CATEGORIES = ['Meat & Fish', 'Dairy & Eggs', 'Produce', 'Bakery', 'Pantry'];
+  const CATEGORIES = ['Meat & Fish', 'Dairy & Eggs', 'Produce', 'Frozen', 'Bakery', 'Pantry'];
   const STORES = {
     Aldi: [['Produce', 'Produce (by the entrance)'], ['Bakery', 'Bread'], ['Pantry', 'Center aisles'],
-      ['Dairy & Eggs', 'Dairy cooler'], ['Meat & Fish', 'Meat cooler']],
+      ['Dairy & Eggs', 'Dairy cooler'], ['Meat & Fish', 'Meat cooler'], ['Frozen', 'Freezers']],
     Publix: [['Produce', 'Produce'], ['Bakery', 'Bakery'], ['Meat & Fish', 'Seafood counter & meat (back)'],
-      ['Pantry', 'Center aisles'], ['Dairy & Eggs', 'Dairy (back wall)']],
+      ['Pantry', 'Center aisles'], ['Dairy & Eggs', 'Dairy (back wall)'], ['Frozen', 'Frozen']],
   };
   const item = (category, unit, per, pack, size, aldi, publix, store, why) => ({ category, unit, per, pack, size, price: { Aldi: aldi, Publix: publix }, store, why });
   const SHOP = {
@@ -164,6 +167,8 @@
     'Honey': item('Pantry', 'tbsp', 1, '12 oz bottle (~17 tbsp)', 17, 3.49, 5.49, 'Aldi', 'Cheaper, same product'),
     'Broccoli': item('Produce', 'lb', 0.33, 'lb', 1, 1.99, 2.99, 'Aldi', 'Crowns hold up well; Aldi is cheaper'),
     'Spinach (raw)': item('Produce', 'oz', 2, '10 oz bag', 10, 2.99, 4.29, 'Publix', 'Delicate greens: pick the bag with the latest date'),
+    'Mixed Vegetables (frozen)': item('Frozen', 'cups', 1, '12 oz bag (~2.5 cups)', 2.5, 1.19, 1.99, 'Aldi', 'Frozen veg is as nutritious as fresh and keeps for weeks'),
+    'Green Beans (frozen)': item('Frozen', 'cups', 1, '12 oz bag (~2.5 cups)', 2.5, 1.19, 1.99, 'Aldi', 'Frozen veg is as nutritious as fresh and keeps for weeks'),
     'Almonds': item('Pantry', 'oz', 1, '16 oz bag', 16, 5.49, 8.99, 'Aldi', 'Southern Grove nuts are a big saving'),
     'Peanut Butter': item('Pantry', 'tbsp', 2, '16 oz jar (~28 tbsp)', 28, 2.09, 3.49, 'Aldi', 'About $2 a jar'),
     'Avocado': item('Produce', 'avocados', 0.5, 'each', 1, 0.89, 1.5, 'Publix', 'Easier to find ripe ones; Aldi bags are often rock-hard'),
@@ -178,7 +183,7 @@
     meal('Lunch', '13:00', [['Chicken Breast', 1], ['White Rice', 2.5], ['Broccoli', 1]]),
     meal('Pre-Workout', '16:00', [['Bagel (plain)', 1], ['Peanut Butter', 0.5], ['Honey', 1]]),
     meal('Post-Workout', '18:30', [['Whey Protein', 1], ['Banana', 1]]),
-    meal('Dinner', '20:00', [['Lean Ground Beef 90/10', 1], ['Sweet Potato', 2], ['Spinach (raw)', 1]]),
+    meal('Dinner', '20:00', [['Lean Ground Beef 90/10', 1], ['Sweet Potato', 2], ['Spinach (raw)', 1], ['Green Beans (frozen)', 1]]),
     BED,
   ];
   const MENU_B = [
@@ -187,26 +192,42 @@
     meal('Lunch', '13:00', [['Lean Ground Beef 90/10', 1], ['Pasta', 2.5], ['Broccoli', 1]]),
     meal('Pre-Workout', '16:00', [['Apple', 1], ['Whole Milk', 1]]),
     meal('Post-Workout', '18:30', [['Whey Protein', 1], ['Bagel (plain)', 1], ['Honey', 1]]),
-    meal('Dinner', '20:00', [['Salmon', 1], ['White Potato', 2], ['Spinach (raw)', 1]]),
+    meal('Dinner', '20:00', [['Salmon', 1], ['White Potato', 2], ['Spinach (raw)', 1], ['Broccoli', 1]]),
     BED,
   ];
   const MENU_C = [
     meal('Breakfast', '7:00', [['Rolled Oats', 2], ['Whole Milk', 1], ['Blueberries', 1], ['Peanut Butter', 0.5]]),
     meal('Snack', '10:00', [['Whole Eggs', 3], ['Whole-Wheat Bread', 2]]),
-    meal('Lunch', '13:00', [['Chicken Breast', 1], ['Black Beans', 1], ['White Rice', 1.5], ['Avocado', 1]]),
+    meal('Lunch', '13:00', [['Chicken Breast', 1], ['Black Beans', 1], ['White Rice', 1.5], ['Avocado', 1], ['Broccoli', 1]]),
     meal('Pre-Workout', '16:00', [['Banana', 1], ['Bagel (plain)', 1], ['Honey', 1]]),
     meal('Post-Workout', '18:30', [['Whey Protein', 1], ['White Rice', 1]]),
-    meal('Dinner', '20:00', [['Sirloin Steak', 1], ['White Potato', 2], ['Spinach (raw)', 1], ['Olive Oil', 0.5]]),
+    meal('Dinner', '20:00', [['Sirloin Steak', 1], ['White Potato', 2], ['Spinach (raw)', 1], ['Mixed Vegetables (frozen)', 1], ['Olive Oil', 0.5]]),
     BED,
   ];
   const MENU_REST = [
     meal('Breakfast', '8:00', [['Whole Eggs', 4], ['Whole-Wheat Bread', 2], ['Avocado', 1], ['Blueberries', 1]]),
     meal('Lunch', '12:30', [['Tuna (canned in water)', 1], ['Sweet Potato', 2], ['Spinach (raw)', 1], ['Olive Oil', 0.5]]),
     meal('Snack', '15:30', [['Greek Yogurt (nonfat)', 1], ['Almonds', 1], ['Apple', 1]]),
-    meal('Dinner', '19:00', [['Chicken Breast', 1], ['White Rice', 2.5], ['Broccoli', 1]]),
+    meal('Dinner', '19:00', [['Chicken Breast', 1], ['White Rice', 2.5], ['Broccoli', 1], ['Mixed Vegetables (frozen)', 1]]),
     meal('Before Bed', '21:30', [['Cottage Cheese (2%)', 1], ['Honey', 1]]),
   ];
   const WEEK_MENUS = [MENU_A, MENU_B, MENU_C, MENU_A, MENU_B, MENU_C, MENU_REST];
+
+  // Supplement checklist. `days` picks which program days each one shows on.
+  const SUPP_DAYS = { daily: 'Every day', training: 'Training days', conditioning: 'Tue & Sat (sweaty days)' };
+  const DEFAULT_SUPPLEMENTS = [
+    { id: 'creatine', name: 'Creatine monohydrate (5 g)', when: 'Any time, every day', days: 'daily' },
+    { id: 'vitdk', name: 'Vitamin D + K', when: 'With breakfast', days: 'daily' },
+    { id: 'vitb', name: 'Vitamin B complex', when: 'With breakfast', days: 'daily' },
+    { id: 'zinc', name: 'Zinc (keep it ≤25 mg)', when: 'With dinner', days: 'daily' },
+    { id: 'lytes', name: 'Electrolytes (500-1,000 mg sodium)', when: 'During the workout', days: 'conditioning' },
+  ];
+  function supplementsFor(settings, d) {
+    const list = (settings && settings.supplements) || DEFAULT_SUPPLEMENTS;
+    return list.filter((s) => s.days === 'daily'
+      || (s.days === 'training' && d.dayType === 'Training')
+      || (s.days === 'conditioning' && (d.wd === 1 || d.wd === 5)));
+  }
 
   const GOALS = { 'Cut': -400, 'Maintain': 0, 'Lean Bulk': 250, 'Bulk': 500 };
   const KCAL_PER_LB = { Training: 16, Rest: 14 };
@@ -315,10 +336,13 @@
       const log = (state.logs || {})[n] || {};
       const exDone = d.exercises.filter((_, i) => log.ex && log.ex[i] && log.ex[i].done).length;
       const mealsDone = d.meals.filter((_, i) => log.meals && log.meals[i]).length;
-      if (exDone === d.exercises.length && mealsDone === d.meals.length) {
+      const supps = supplementsFor(s, d);
+      const suppsDone = supps.filter((x) => log.supps && log.supps[x.id]).length;
+      if (exDone === d.exercises.length && mealsDone === d.meals.length && suppsDone === supps.length) {
         return { title: 'Hanma approved', body: `Day ${n} fully logged. Sleep 8+ hours and come back stronger.` };
       }
-      return { title: `Day ${n} check-in`, body: `${exDone}/${d.exercises.length} exercises and ${mealsDone}/${d.meals.length} meals logged. Finish your log before bed.` };
+      const suppText = supps.length ? `, ${suppsDone}/${supps.length} supplements` : '';
+      return { title: `Day ${n} check-in`, body: `${exDone}/${d.exercises.length} exercises, ${mealsDone}/${d.meals.length} meals${suppText} logged. Finish your log before bed.` };
     }
     const top = d.exercises.slice(0, 3).map((e) => `${e.name.replace(/\s*\(.*?\)/, '')} ${e.sets > 1 ? e.sets + '×' : ''}${e.reps}`).join(', ');
     const more = d.exercises.length > 3 ? ` +${d.exercises.length - 3} more` : '';
@@ -330,7 +354,7 @@
     };
   }
 
-  const api = { TOTAL_DAYS, PHASE, GOALS, FOODS, getDay, targets, macrosFor, compose, weeklyGroceries, isoDate, dayNumber, addDays, nextMonday, fmtNum };
+  const api = { TOTAL_DAYS, PHASE, GOALS, FOODS, SUPP_DAYS, DEFAULT_SUPPLEMENTS, supplementsFor, getDay, targets, macrosFor, compose, weeklyGroceries, isoDate, dayNumber, addDays, nextMonday, fmtNum };
   root.BakiPlan = api;
   if (typeof module !== 'undefined') module.exports = api;
 })(typeof self !== 'undefined' ? self : globalThis);
