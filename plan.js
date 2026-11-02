@@ -179,30 +179,30 @@
   const meal = (name, time, items) => ({ name, time, items: items.map(([food, s]) => ({ food, base: s })) });
   const BED = meal('Before Bed', '21:30', [['Cottage Cheese (2%)', 1]]);
   const MENU_A = [
-    meal('Breakfast', '7:00', [['Whole Eggs', 3], ['Rolled Oats', 2], ['Banana', 1], ['Honey', 1]]),
-    meal('Snack', '10:00', [['Greek Yogurt (nonfat)', 1], ['Blueberries', 1], ['Almonds', 1]]),
-    meal('Lunch', '13:00', [['Chicken Breast', 1], ['White Rice', 2.5], ['Broccoli', 1]]),
-    meal('Pre-Workout', '16:00', [['Bagel (plain)', 1], ['Peanut Butter', 0.5], ['Honey', 1]]),
-    meal('Post-Workout', '18:30', [['Whey Protein', 1], ['Banana', 1]]),
-    meal('Dinner', '20:00', [['Lean Ground Beef 90/10', 1], ['Sweet Potato', 2], ['Spinach (raw)', 1], ['Green Beans (frozen)', 1]]),
+    meal('Breakfast', '8:00', [['Whole Eggs', 3], ['Rolled Oats', 2], ['Banana', 1], ['Honey', 1]]),
+    meal('Snack', '10:30', [['Greek Yogurt (nonfat)', 1], ['Blueberries', 1], ['Almonds', 1]]),
+    meal('Lunch', '15:30', [['Chicken Breast', 1], ['White Rice', 2.5], ['Broccoli', 1]]),
+    meal('Pre-Workout', '12:30', [['Bagel (plain)', 1], ['Peanut Butter', 0.5], ['Honey', 1]]),
+    meal('Post-Workout', '14:30', [['Whey Protein', 1], ['Banana', 1]]),
+    meal('Dinner', '19:00', [['Lean Ground Beef 90/10', 1], ['Sweet Potato', 2], ['Spinach (raw)', 1], ['Green Beans (frozen)', 1]]),
     BED,
   ];
   const MENU_B = [
-    meal('Breakfast', '7:00', [['Whole Eggs', 3], ['Whole-Wheat Bread', 2], ['Banana', 1], ['Honey', 1]]),
-    meal('Snack', '10:00', [['Whey Protein', 1], ['Rolled Oats', 2], ['Banana', 1]]),
-    meal('Lunch', '13:00', [['Lean Ground Beef 90/10', 1], ['Pasta', 2.5], ['Broccoli', 1]]),
-    meal('Pre-Workout', '16:00', [['Apple', 1], ['Whole Milk', 1]]),
-    meal('Post-Workout', '18:30', [['Whey Protein', 1], ['Bagel (plain)', 1], ['Honey', 1]]),
-    meal('Dinner', '20:00', [['Salmon', 1], ['White Potato', 2], ['Spinach (raw)', 1], ['Broccoli', 1]]),
+    meal('Breakfast', '8:00', [['Whole Eggs', 3], ['Whole-Wheat Bread', 2], ['Banana', 1], ['Honey', 1]]),
+    meal('Snack', '10:30', [['Whey Protein', 1], ['Rolled Oats', 2], ['Banana', 1]]),
+    meal('Lunch', '15:30', [['Lean Ground Beef 90/10', 1], ['Pasta', 2.5], ['Broccoli', 1]]),
+    meal('Pre-Workout', '12:30', [['Apple', 1], ['Whole Milk', 1]]),
+    meal('Post-Workout', '14:30', [['Whey Protein', 1], ['Bagel (plain)', 1], ['Honey', 1]]),
+    meal('Dinner', '19:00', [['Salmon', 1], ['White Potato', 2], ['Spinach (raw)', 1], ['Broccoli', 1]]),
     BED,
   ];
   const MENU_C = [
-    meal('Breakfast', '7:00', [['Rolled Oats', 2], ['Whole Milk', 1], ['Blueberries', 1], ['Peanut Butter', 0.5]]),
-    meal('Snack', '10:00', [['Whole Eggs', 3], ['Whole-Wheat Bread', 2]]),
-    meal('Lunch', '13:00', [['Chicken Breast', 1], ['Black Beans', 1], ['White Rice', 1.5], ['Avocado', 1], ['Broccoli', 1]]),
-    meal('Pre-Workout', '16:00', [['Banana', 1], ['Bagel (plain)', 1], ['Honey', 1]]),
-    meal('Post-Workout', '18:30', [['Whey Protein', 1], ['White Rice', 1]]),
-    meal('Dinner', '20:00', [['Sirloin Steak', 1], ['White Potato', 2], ['Spinach (raw)', 1], ['Mixed Vegetables (frozen)', 1], ['Olive Oil', 0.5]]),
+    meal('Breakfast', '8:00', [['Rolled Oats', 2], ['Whole Milk', 1], ['Blueberries', 1], ['Peanut Butter', 0.5]]),
+    meal('Snack', '10:30', [['Whole Eggs', 3], ['Whole-Wheat Bread', 2]]),
+    meal('Lunch', '15:30', [['Chicken Breast', 1], ['Black Beans', 1], ['White Rice', 1.5], ['Avocado', 1], ['Broccoli', 1]]),
+    meal('Pre-Workout', '12:30', [['Banana', 1], ['Bagel (plain)', 1], ['Honey', 1]]),
+    meal('Post-Workout', '14:30', [['Whey Protein', 1], ['White Rice', 1]]),
+    meal('Dinner', '19:00', [['Sirloin Steak', 1], ['White Potato', 2], ['Spinach (raw)', 1], ['Mixed Vegetables (frozen)', 1], ['Olive Oil', 0.5]]),
     BED,
   ];
   const MENU_REST = [
@@ -212,6 +212,11 @@
     meal('Dinner', '19:00', [['Chicken Breast', 1], ['White Rice', 2.5], ['Broccoli', 1], ['Mixed Vegetables (frozen)', 1]]),
     meal('Before Bed', '21:30', [['Cottage Cheese (2%)', 1], ['Honey', 1]]),
   ];
+  // Meals stay in this order (logs refer to them by position); show them with mealsByTime.
+  const WORKOUT_TIME = '1:30-2:30 PM';
+  const toMinutes = (hm) => { const [h, m] = hm.split(':').map(Number); return h * 60 + m; };
+  const mealsByTime = (meals) => meals.map((m, i) => [m, i]).sort((a, b) => toMinutes(a[0].time) - toMinutes(b[0].time));
+  const fmt12 = (hm) => { const [h, m] = hm.split(':').map(Number); return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`; };
   const WEEK_MENUS = [MENU_A, MENU_B, MENU_C, MENU_A, MENU_B, MENU_C, MENU_REST];
 
   // Supplement checklist. `days` picks which program days each one shows on.
@@ -347,15 +352,25 @@
     }
     const top = d.exercises.slice(0, 3).map((e) => `${e.name.replace(/\s*\(.*?\)/, '')} ${e.sets > 1 ? e.sets + '×' : ''}${e.reps}`).join(', ');
     const more = d.exercises.length > 3 ? ` +${d.exercises.length - 3} more` : '';
+    if (type === 'midday') {
+      const next = mealsByTime(d.meals).map(([m]) => m).find((m) => toMinutes(m.time) >= 12 * 60);
+      const log = (state.logs || {})[n] || {};
+      const eatenCount = d.meals.filter((_, i) => log.meals && log.meals[i]).length;
+      const gym = d.dayType === 'Training' ? ` Gym ${WORKOUT_TIME}, shake right after, then lunch.` : '';
+      return {
+        title: `${next.name} at ${fmt12(next.time)}`,
+        body: `${next.items.map((i) => `${i.servings} ${i.food}`).join(', ')}.${gym} ${eatenCount}/${d.meals.length} meals logged so far.`,
+      };
+    }
     const first = d.meals[0];
     const restock = d.dayType === 'Rest' && n < TOTAL_DAYS ? ' Restock today: open the Grocery list.' : '';
     return {
       title: `Day ${n}/${TOTAL_DAYS} · ${d.focusShort}`,
-      body: `${top}${more}. Eat ${fmtNum(d.targets.kcal)} kcal, ${d.targets.protein} g protein. ${first.name}: ${first.items.map((i) => `${i.servings} ${i.food}`).join(', ')}.${restock}`,
+      body: `${d.dayType === 'Training' ? `Pack your snack, pre-workout, shake and lunch. Gym ${WORKOUT_TIME}: ` : ''}${top}${more}. Eat ${fmtNum(d.targets.kcal)} kcal, ${d.targets.protein} g protein. ${first.name}: ${first.items.map((i) => `${i.servings} ${i.food}`).join(', ')}.${restock}`,
     };
   }
 
-  const api = { TOTAL_DAYS, PHASE, GOALS, FOODS, SHOP, STORES, WEEK_MENUS, SUPP_DAYS, DEFAULT_SUPPLEMENTS, supplementsFor, getDay, targets, macrosFor, compose, weeklyGroceries, isoDate, dayNumber, addDays, nextMonday, fmtNum };
+  const api = { WORKOUT_TIME, mealsByTime, TOTAL_DAYS, PHASE, GOALS, FOODS, SHOP, STORES, WEEK_MENUS, SUPP_DAYS, DEFAULT_SUPPLEMENTS, supplementsFor, getDay, targets, macrosFor, compose, weeklyGroceries, isoDate, dayNumber, addDays, nextMonday, fmtNum };
   root.BakiPlan = api;
   if (typeof module !== 'undefined') module.exports = api;
 })(typeof self !== 'undefined' ? self : globalThis);

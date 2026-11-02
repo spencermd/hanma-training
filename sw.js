@@ -1,6 +1,6 @@
 importScripts('config.js', 'plan.js', 'store.js');
 
-const CACHE = 'hanma-v6';
+const CACHE = 'hanma-v7';
 const ASSETS = [
   './', 'index.html', 'styles.css', 'app.js', 'plan.js', 'store.js', 'config.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'icons/badge-96.png',
@@ -37,7 +37,7 @@ self.addEventListener('push', (e) => {
   e.waitUntil((async () => {
     let data = {};
     try { data = e.data ? e.data.json() : {}; } catch { /* plain-text payload */ }
-    const type = data.type === 'evening' ? 'evening' : 'morning';
+    const type = ['evening', 'midday'].includes(data.type) ? data.type : 'morning';
     let msg;
     try {
       const state = await Store.get('state');

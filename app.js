@@ -93,7 +93,7 @@ function renderToday() {
     <div class="kicker">Week ${d.week} · ${esc(d.phase)}</div>
     <h1>Day ${n} <span class="of">/ ${P.TOTAL_DAYS}</span></h1>
     <div class="focus">${esc(d.focusShort)}${d.nickname ? ` <span class="nick">“${esc(d.nickname)}”</span>` : ''}</div>
-    <div class="sub">${fmtDate(dateOf(n))}${isToday ? ' · Today' : ''} · ${d.dayType} day · RPE ${d.rpe}</div>
+    <div class="sub">${fmtDate(dateOf(n))}${isToday ? ' · Today' : ''} · ${d.dayType === 'Training' ? `Gym ${P.WORKOUT_TIME}` : 'Rest day'} · RPE ${d.rpe}</div>
     <div class="daynav">
       <button data-action="day" data-to="${n - 1}" ${n <= 1 ? 'disabled' : ''}>‹ Prev</button>
       <button data-action="day" data-to="${n + 1}" ${n >= P.TOTAL_DAYS ? 'disabled' : ''}>Next ›</button>
@@ -115,7 +115,7 @@ function renderToday() {
       ${macro('Carbs', e.carbs, d.targets.carbs, 'g')}
       ${macro('Fat', e.fat, d.targets.fat, 'g')}
     </div>
-    <ul class="list">${d.meals.map((m, i) => mealRow(m, i, log)).join('')}</ul>
+    <ul class="list">${P.mealsByTime(d.meals).map(([m, i]) => mealRow(m, i, log)).join('')}</ul>
     ${log.foods.length ? `<div style="margin-top:4px">${log.foods.map(extraRow).join('')}</div>` : ''}
     <button class="btn secondary" style="margin-top:10px" data-action="add-food">+ Log other food</button>
   </section>

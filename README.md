@@ -7,7 +7,7 @@ A phone app for the 6-week Baki Hanma workout and diet plan. It works on Android
 - **Grocery:** a weekly shopping list split between Aldi and Publix (cheapest store unless quality is worth paying for), in walking order for each store, with estimated costs, a per-item store switch, a category view, and check-offs. The Sunday morning reminder says to restock.
 - **Progress:** completion stats, streak, benchmark tests (weeks 0, 3 and 6) and a bodyweight chart.
 - **Settings:** start date, bodyweight and goal (meal portions rescale to fit), your supplement list (name, timing, which days), reminder times, and backup/restore.
-- **Reminders:** a morning push with the day's plan and an evening check-in on what's still unlogged.
+- **Reminders:** a morning push with the day's plan and what to pack, a noon push with your next meal, and an evening check-in on what's still unlogged.
 
 All logs stay on your phone. The push only says "morning" or "evening"; the phone builds the notification text itself.
 

@@ -1,9 +1,9 @@
-// Sends the morning / evening reminder pushes. Run hourly by GitHub Actions.
+// Sends the morning / midday / evening reminder pushes. Run hourly by GitHub Actions.
 // Each device code (from the app's Settings tab) carries its own time zone and
 // reminder hours, so this only sends to devices whose local hour matches now.
 //
 // Env: VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, PUSH_SUBSCRIPTIONS (JSON array of
-// device codes), optional FORCE_TYPE = morning | evening to send right away.
+// device codes), optional FORCE_TYPE = morning | midday | evening to send right away.
 import webpush from 'web-push';
 
 const { VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, PUSH_SUBSCRIPTIONS, FORCE_TYPE, GITHUB_REPOSITORY } = process.env;
@@ -30,7 +30,7 @@ const localHour = (tz) => Number(new Intl.DateTimeFormat('en-US', { timeZone: tz
 let failures = 0;
 for (const d of devices) {
   const hour = localHour(d.tz);
-  const type = FORCE_TYPE || (hour === Number(d.morning) ? 'morning' : hour === Number(d.evening) ? 'evening' : null);
+  const type = FORCE_TYPE || (hour === Number(d.morning) ? 'morning' : hour === Number(d.midday ?? 12) ? 'midday' : hour === Number(d.evening) ? 'evening' : null);
   const label = `${d.device || 'device'} (${d.tz}, local hour ${hour})`;
   if (!type) { console.log(`${label}: nothing due`); continue; }
   try {

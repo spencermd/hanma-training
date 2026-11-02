@@ -8,7 +8,7 @@ on:
       type:
         description: Send this reminder to every device right now
         type: choice
-        options: [morning, evening]
+        options: [morning, midday, evening]
         default: morning
 
 jobs:
