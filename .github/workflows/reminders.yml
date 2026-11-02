@@ -2,14 +2,14 @@ name: Daily reminders
 
 on:
   schedule:
-    - cron: "2 * * * *" # hourly; each device's own time zone and hours decide what gets sent
+    - cron: "2 * * * *" # backup only: often hours late. scheduler/worker.js is the on-time trigger
   workflow_dispatch:
     inputs:
       type:
-        description: Send this reminder to every device right now
+        description: auto sends only what is due this hour; the others send to every device right now
         type: choice
-        options: [morning, midday, evening]
-        default: morning
+        options: [auto, morning, midday, evening]
+        default: auto
 
 jobs:
   send:
@@ -29,4 +29,4 @@ jobs:
           VAPID_PUBLIC_KEY: ${{ vars.VAPID_PUBLIC_KEY }}
           VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
           PUSH_SUBSCRIPTIONS: ${{ secrets.PUSH_SUBSCRIPTIONS }}
-          FORCE_TYPE: ${{ inputs.type }}
+          FORCE_TYPE: ${{ inputs.type != 'auto' && inputs.type || '' }}

@@ -13,7 +13,9 @@ All logs stay on your phone. The push only says "morning" or "evening"; the phon
 
 ## How the reminders work
 
-GitHub Actions runs [`push/send.mjs`](push/send.mjs) every hour. Each phone's *device code* holds that phone's time zone and reminder hours, so a phone only gets a push when its local hour matches. GitHub's scheduler can run 5–30 minutes late, so expect a 7:00 reminder somewhere around 7:05–7:30.
+A free Cloudflare Worker ([`scheduler/worker.js`](scheduler/worker.js)) starts the GitHub Actions workflow at the top of every hour, and the workflow runs [`push/send.mjs`](push/send.mjs). Each phone's *device code* holds that phone's time zone and reminder hours, so a phone only gets a push when its local hour matches. GitHub's own scheduler can't do this job alone because its runs can come hours apart.
+
+The Worker's GitHub token is limited to this repo and expires on the date you chose. When it expires the reminders stop, so make a new token and replace the `GITHUB_TOKEN` secret in Cloudflare.
 
 ## One-time setup
 
